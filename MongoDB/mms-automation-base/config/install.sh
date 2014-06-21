@@ -10,8 +10,10 @@ echo "Installing MMS Automation Agent"
 sudo yum -y install https://mms.mongodb.com/download/agent/automation/mongodb-mms-automation-agent-manager-latest.x86_64.rpm
 
 echo "Updating the MMS Automation Agent configuration file"
+sudo cp /etc/mongodb-mms/automation-agent.config /etc/mongodb-mms/automation-agent.config.orig
 
+sudo sed -i -e "s/@API_KEY@/$MMSAUTO_AGENT_KEY/" /etc/mongodb-mms/automation-agent.config
+sudo sed -i -e "s/@GROUP_ID@/$MMSAUTO_AGENT_GROUP_ID/" /etc/mongodb-mms/automation-agent.config
 
-
-sed -i -e "s/@API_KEY@/xyz/" /etc/automation-agent.config
-sed -i -e "s/@GROUP_ID@/xyz/" /etc/automation-agent.config
+echo "Starting the MMS Automation Agent"
+sudo service mongodb-mms-automation-agent start
