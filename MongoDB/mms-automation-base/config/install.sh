@@ -1,7 +1,6 @@
 #! /bin/bash
 
-set -e
-set -x
+set -ex
 
 echo "Installing MongoDB Shell Utilities"
 sudo yum -y install http://downloads-distro.mongodb.org/repo/redhat/os/x86_64/RPMS/mongodb-org-shell-2.6.2-1.x86_64.rpm
@@ -17,3 +16,10 @@ sudo sed -i -e "s/@GROUP_ID@/$MMSAUTO_AGENT_GROUP_ID/" /etc/mongodb-mms/automati
 
 echo "Starting the MMS Automation Agent"
 sudo service mongodb-mms-automation-agent start
+
+echo "Creating data directory /data/db with mongod ownership"
+sudo mkdir -p /data/db
+sudo chown mongod:mongod /data/db
+
+ls -ld /data/db
+ls -ltr /data/db
