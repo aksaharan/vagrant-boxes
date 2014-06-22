@@ -1,67 +1,79 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-
 ########### There are global values that drives the various values ########
-INSTANCES = 1
-HOSTNAME_PREFIX = "mmsauto-"
-HOSTNAME_SUFFIX = ""
+INSTANCES = 2
+HOSTNAME_PREFIX = "aks-automation-"
+HOSTNAME_SUFFIX = ".vbox.vagrant"
+
+USE_DHCP = true
 IP_ADDRESS_PREFIX = "192.168.20."
-IP_SUFFIX_START = 1
+IP_SUFFIX_START = 2
 
 ###### MMS Automation Agent Specific Keys
 MMS_AUTOMATION_AGENT_KEY = ENV["MMS_AUTOMATION_AGENT_KEY"]
 MMS_AUTOMATION_AGENT_GROUP_ID = ENV["MMS_AUTOMATION_AGENT_GROUP_ID"]
 ################################################
 
+$initExports = "export VAGRANT_LOG='/var/log/vagrant-setup.log'; \ \n"
+$initExports += "touch $VAGRANT_LOG; \ \n"
+$initExports += "echo \"Starting new Vargrant initialiazation `date`\"2>&1 | tee -a $VAGRANT_LOG; \ \n"
+$initExports += "export MMSAUTO_AGENT_KEY='#{MMS_AUTOMATION_AGENT_KEY}' MMSAUTO_AGENT_GROUP_ID='#{MMS_AUTOMATION_AGENT_GROUP_ID}'; \ \n"
+$initExports += "echo \"Agent Id [Key: $MMSAUTO_AGENT_KEY, GroupId: $MMSAUTO_AGENT_GROUP_ID]\" 2>&1 | tee -a $VAGRANT_LOG; \ \n"
 
-$MMS_AUTOMATION_SCRIPT = <<EOF
-touch /var/log/vagrant-setup.log; \
-export MMS_AUTOMATION_AGENT_KEY = $MMS_AUTOMATION_AGENT_KEY; \
-export MMS_AUTOMATION_AGENT_GROUP_ID = $MMS_AUTOMATION_AGENT_GROUP_ID; \
-source /vagrant/config/mms-automation-base/config.sh | tee -a /var/log/vagrant-setup.log; \
-echo "AgentKey => $MMS_AUTOMATION_AGENT_KEY" | tee -a /var/log/vagrant-setup.log; \
-echo "AgentGroupId => $MMS_AUTOMATION_AGENT_GROUP_ID" | tee -a /var/log/vagrant-setup.log; \
-sh /vagrant/config/mms-automation-base/install.sh    | tee -a /var/log/vagrant-setup.log;
-EOF
+$initScripts = "sh /vagrant/config/config.sh | tee -a $VAGRANT_LOG; \ \n"
+$initScripts += "sh /vagrant/config/install.sh | tee -a $VAGRANT_LOG; \ \n"
 
 Vagrant.configure("2") do |config|
 
-	(1..INSTANCES).each do |i|
-	#INSTANCES.times do |i|
+	#(1..$INSTANCES).each do |i|
+	INSTANCES.times do |i|
 		ipSuffix = IP_SUFFIX_START + i
-		if ipSuffix >= 254
-			# Stop here since running out of IP for /24 block
-			print "Running out of IP addresses for [Prefix: %s, ipSuffix: %d]\n" % [IP_ADDRESS_PREFIX, ipSuffix]
-			exit
-		end
+		initExports = $initExports
 
-		isPrimary = (ipSuffix == (IP_SUFFIX_START + 1) )
-
-		#boxHostname = "#{HOSTNAME_PREFIX}#{ipSuffix}#{HOSTNAME_SUFFIX}"
-		boxIPAddress = "%s%d" % [IP_ADDRESS_PREFIX, ipSuffix]
-		boxIPHostname = boxIPAddress.gsub(/\./, "-")
-		boxHostname = "%sip%s%s" % [HOSTNAME_PREFIX, boxIPHostname, HOSTNAME_SUFFIX]
-		boxName = "%s%d" % [HOSTNAME_PREFIX, ipSuffix]
-
-		config.vm.define boxName, primary: isPrimary do |mmsbox|
-			print "Configuring Instance [Counter: ", i, ", IP: ", boxIPAddress, ", Hostname: ", boxHostname, "\n"
-
-			# pick my own version here
-			mmsbox.vm.box = "CentoOS 6.4"
-			mmsbox.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-64-x64-vbox4210-nocm.box"
-
-			mmsbox.vm.provider "virtualbox" do |v|
-				# v.customize ["modifyvm", :id, "--cpus", "2"]
+		if USE_DHCP == false
+			if ipSuffix >= 254
+				# Stop here since running out of IP for /24 block
+				print "Running out of IP addresses for [Prefix: %s, ipSuffix: %d]\n" % [IP_ADDRESS_PREFIX, ipSuffix]
+				exit
 			end
 
-			mmsbox.vm.network :private_network, ip: boxIPAddress
-			mmsbox.vm.hostname = boxHostname
-			mmsbox.vm.provision :shell, :inline => $MMS_AUTOMATION_SCRIPT
+			boxIPAddress = "%s%d" % [IP_ADDRESS_PREFIX, ipSuffix]
+			boxIPHostname = "ip" + boxIPAddress.gsub(/\./, "-")
+
+			initExports += "export MMSAUTO_IP_ADDRESS='#{boxIPAddress}' MMSAUTO_IP_HOSTNAME='#{boxIPHostname}'; \ \n"
 		end
 
-		if isPrimary
-			isPrimary = false
+		isPrimary = (ipSuffix == IP_SUFFIX_START)
+		boxHostname = "%s%d%s" % [HOSTNAME_PREFIX, ipSuffix, HOSTNAME_SUFFIX]
+
+		initExports += "export MMSAUTO_HOSTNAME='#{boxHostname}'; \ \n"
+		initExports += "echo \"Agent Id [Key: $MMSAUTO_AGENT_KEY, GroupId: $MMSAUTO_AGENT_GROUP_ID]\" 2>&1 | tee -a $VAGRANT_LOG; \ \n"
+
+		config.vm.define boxHostname, primary: isPrimary do |server|
+			print "Configuring Instance [Counter: ", i, ", Hostname: ", boxHostname, "]\n"
+
+			# pick my own version here
+			server.vm.box = "CentoOS 6.4"
+			server.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-64-x64-vbox4210-nocm.box"
+
+			server.vm.provider "virtualbox" do |v|
+				# v.customize ["modifyvm", :id, "--cpus", "2"]
+				v.memory = 1024
+				v.cpus = 2
+				v.customize ["modifyvm", :id, "--cpuexecutioncap", "30"]
+			end
+
+			initInlineScript = initExports + $initScripts
+
+			server.vm.hostname = boxHostname
+			if USE_DHCP
+				server.vm.network :private_network, type: "dhcp"
+			else 
+				server.vm.network :private_network, ip: boxIPAddress
+			end
+
+			server.vm.provision :shell, :inline => initInlineScript
 		end
 	end
 end
