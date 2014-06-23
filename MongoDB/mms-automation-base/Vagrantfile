@@ -1,21 +1,9 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-########### There are global values that drives the various values ########
-INSTANCES = 2
-HOSTNAME_PREFIX = "aks-automation-"
-HOSTNAME_SUFFIX = ".vbox.vagrant"
+require_relative "config/vagrant_config.virtualbox"
 
-USE_DHCP = true
-IP_ADDRESS_PREFIX = "192.168.20."
-IP_SUFFIX_START = 2
-
-###### MMS Automation Agent Specific Keys
-MMS_AUTOMATION_AGENT_KEY = ENV["MMS_AUTOMATION_AGENT_KEY"]
-MMS_AUTOMATION_AGENT_GROUP_ID = ENV["MMS_AUTOMATION_AGENT_GROUP_ID"]
-################################################
-
-$initExports = "export VAGRANT_LOG='/var/log/vagrant-setup.log'; \ \n"
+$initExports = "set -ex; export VAGRANT_LOG='/var/log/vagrant-setup.log'; \ \n"
 $initExports += "touch $VAGRANT_LOG; \ \n"
 $initExports += "echo \"Starting new Vargrant initialiazation `date`\"2>&1 | tee -a $VAGRANT_LOG; \ \n"
 $initExports += "export MMSAUTO_AGENT_KEY='#{MMS_AUTOMATION_AGENT_KEY}' MMSAUTO_AGENT_GROUP_ID='#{MMS_AUTOMATION_AGENT_GROUP_ID}'; \ \n"
@@ -24,31 +12,44 @@ $initExports += "echo \"Agent Id [Key: $MMSAUTO_AGENT_KEY, GroupId: $MMSAUTO_AGE
 $initScripts = "sh /vagrant/config/config.sh | tee -a $VAGRANT_LOG; \ \n"
 $initScripts += "sh /vagrant/config/install.sh | tee -a $VAGRANT_LOG; \ \n"
 
+$hostnameIPAddressMap = ""
+
 Vagrant.configure("2") do |config|
 
-	#(1..$INSTANCES).each do |i|
-	INSTANCES.times do |i|
-		ipSuffix = IP_SUFFIX_START + i
-		initExports = $initExports
-
-		if USE_DHCP == false
+	# Generate the possible hostnames and assigned IP addresses
+	if USE_DHCP == false
+		INSTANCES.times do |i|
+			ipSuffix = IP_SUFFIX_START + i
 			if ipSuffix >= 254
 				# Stop here since running out of IP for /24 block
 				print "Running out of IP addresses for [Prefix: %s, ipSuffix: %d]\n" % [IP_ADDRESS_PREFIX, ipSuffix]
 				exit
 			end
 
+			boxHostname = "%s%d%s" % [HOSTNAME_PREFIX, i, HOSTNAME_SUFFIX]
+			boxIPAddress = "%s%d" % [IP_ADDRESS_PREFIX, ipSuffix]
+			boxIPHostname = "ip" + boxIPAddress.gsub(/\./, "-")
+
+			$hostnameIPAddressMap += "#{boxIPAddress}:#{boxIPHostname}|#{boxHostname};"
+		end
+	end
+
+	INSTANCES.times do |i|
+		ipSuffix = IP_SUFFIX_START + i
+		initExports = $initExports
+
+		isPrimary = (i == 1)
+		boxHostname = "%s%d%s" % [HOSTNAME_PREFIX, i, HOSTNAME_SUFFIX]
+
+		if USE_DHCP == false
 			boxIPAddress = "%s%d" % [IP_ADDRESS_PREFIX, ipSuffix]
 			boxIPHostname = "ip" + boxIPAddress.gsub(/\./, "-")
 
 			initExports += "export MMSAUTO_IP_ADDRESS='#{boxIPAddress}' MMSAUTO_IP_HOSTNAME='#{boxIPHostname}'; \ \n"
+			initExports += "export MMSAUTO_ADDRESS_MAP='#{$hostnameIPAddressMap}'; \ \n"
 		end
 
-		isPrimary = (ipSuffix == IP_SUFFIX_START)
-		boxHostname = "%s%d%s" % [HOSTNAME_PREFIX, ipSuffix, HOSTNAME_SUFFIX]
-
 		initExports += "export MMSAUTO_HOSTNAME='#{boxHostname}'; \ \n"
-		initExports += "echo \"Agent Id [Key: $MMSAUTO_AGENT_KEY, GroupId: $MMSAUTO_AGENT_GROUP_ID]\" 2>&1 | tee -a $VAGRANT_LOG; \ \n"
 
 		config.vm.define boxHostname, primary: isPrimary do |server|
 			print "Configuring Instance [Counter: ", i, ", Hostname: ", boxHostname, "]\n"
@@ -59,8 +60,9 @@ Vagrant.configure("2") do |config|
 
 			server.vm.provider "virtualbox" do |v|
 				# v.customize ["modifyvm", :id, "--cpus", "2"]
+				v.name = boxHostname
 				v.memory = 1024
-				v.cpus = 2
+				v.cpus = 1
 				v.customize ["modifyvm", :id, "--cpuexecutioncap", "30"]
 			end
 
