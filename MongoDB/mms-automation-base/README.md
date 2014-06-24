@@ -4,7 +4,6 @@ MongoDB MMS Automation Agent vagrant-box
 This vagrant file provides creation of vagrant boxes with MMS Automation agent configured
 on it using the various settings provided in the Vagrantfile and the environment variable
 
-# What happens as part of the Vagrant 
 ## MMS Automation Box creation 
 Vagrant box setup behaviour is configured using the control paramaters available in the file
 config/vagrant_config.virtualbox.rb. Following are some of the values that are available 
@@ -33,12 +32,6 @@ IP_SUFFIX_START = 2
 ```
 
 #### MMS Automation Agent Specific Keys
-```
-MMS_AUTOMATION_AGENT_KEY = ENV["MMS_AUTOMATION_AGENT_KEY"]
-MMS_AUTOMATION_AGENT_GROUP_ID = ENV["MMS_AUTOMATION_AGENT_GROUP_ID"]
-```
-
-# MMS Automation Agent Key
 MMS Automation Agent API Key / Group ID can be se in following two ways before deploying the vagrant boxes
 - By exporting following environment variables when the initial setup of the box is being 
 done for MMS Automation.
