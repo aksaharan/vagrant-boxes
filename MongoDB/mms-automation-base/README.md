@@ -6,13 +6,43 @@ on it using the various settings provided in the Vagrantfile and the environment
 
 # What happens as part of the Vagrant 
 ## MMS Automation Box creation 
+Vagrant box setup behaviour is configured using the control paramaters available in the file
+config/vagrant_config.virtualbox.rb. Following are some of the values that are available 
+to be configured for the instances being created:
+
+#### Number of vagrant boxes to create
+INSTANCES = 1
+
+#### Hostname specific information 
+HOSTNAME_PREFIX = "mms-automation-"
+HOSTNAME_SUFFIX = ".vbox.vagrant"
+
+USE_DHCP = false
+
+#### Following IP related setting is useful only if USE_DHCP = false
+IP_ADDRESS_PREFIX = "192.168.20."
+IP_SUFFIX_START = 2
+
+#### MMS Automation Agent Specific Keys
+MMS_AUTOMATION_AGENT_KEY = ENV["MMS_AUTOMATION_AGENT_KEY"]
+MMS_AUTOMATION_AGENT_GROUP_ID = ENV["MMS_AUTOMATION_AGENT_GROUP_ID"]
+
 
 # MMS Automation Agent Key
-Following environment variables should be exported when the initial setup of the box is being 
-done for MMS Automation. This will help setup the MMS automation agent.
-
+MMS Automation Agent API Key / Group ID can be se in following two ways before deploying the vagrant boxes
+- By exporting following environment variables when the initial setup of the box is being 
+done for MMS Automation.
+```
 export MMS_AUTOMATION_AGENT_KEY="<YourMMSAgentKey>"
 export MMS_AUTOMATION_AGENT_GROUP_ID="<YourMMSGroupIDKey>"
+```
+- By directly updating following entries in the config/vagrant_config.virtualbox.rb
+```
+MMS_AUTOMATION_AGENT_KEY = "<YourMMSAgentKey>"
+MMS_AUTOMATION_AGENT_GROUP_ID = "<YourMMSGroupID>"
+```
 
 ## Package Installations
-
+Following packages are installed as part of the box setup - install process
+- MongoDB Shell
+- MMS Automation Agent
