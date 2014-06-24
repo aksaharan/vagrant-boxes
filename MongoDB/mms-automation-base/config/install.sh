@@ -9,7 +9,7 @@ function installRPM {
 		sudo yum --assumeyes --cacheonly install "$RPMFILE"
 	elif [ -n "$2" ]; then
 		echo "Local RPM file not found, will try to install from internet location"
-		sudo yum --assumeyes --cacheonly install "$2"
+		sudo yum --assumeyes install "$2"
 	else
 		echo "Failed to install the RPM for following options [RPMFile: $RPMFILE, URL: $2]"
 	fi
