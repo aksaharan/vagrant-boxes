@@ -45,6 +45,13 @@ MMS_AUTOMATION_AGENT_KEY = "<YourMMSAgentKey>"
 MMS_AUTOMATION_AGENT_GROUP_ID = "<YourMMSGroupID>"
 ```
 
+#### MongoDB Package version information
+As part of the machine setup, mongodb-shell package is also installed. This is driven by the version
+number specified for the following variable in the file:
+```
+MONGODB_SHELL_VERSION = "2.6.2-1"
+```
+
 ## Package Installations
 Following packages are installed as part of the box setup - install process
 - MongoDB Shell
