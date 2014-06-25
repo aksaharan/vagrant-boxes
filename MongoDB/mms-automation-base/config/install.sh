@@ -6,7 +6,7 @@ set -ex
 function installRPM {
 	RPMFILE="/vagrant/$1"
 	if [ -f "$RPMFILE" -a -r "$RPMFILE" ]; then
-		sudo yum --assumeyes --cacheonly install "$RPMFILE"
+		sudo yum --assumeyes install "$RPMFILE"
 	elif [ -n "$2" ]; then
 		echo "Local RPM file not found, will try to install from internet location"
 		sudo yum --assumeyes install "$2"
@@ -17,7 +17,7 @@ function installRPM {
 
 
 echo "Installing MongoDB Shell Utilities"
-installRPM "mongodb-org-shell-2.6.2-1.x86_64.rpm" "http://downloads-distro.mongodb.org/repo/redhat/os/x86_64/RPMS/mongodb-org-shell-2.6.2-1.x86_64.rpm"
+installRPM "mongodb-org-shell-${MONGODB_SHELL_VERSION}.x86_64.rpm" "http://downloads-distro.mongodb.org/repo/redhat/os/x86_64/RPMS/mongodb-org-shell-${MONGODB_SHELL_VERSION}.x86_64.rpm"
 
 echo "Installing MMS Automation Agent"
 installRPM "mongodb-mms-automation-agent-manager-latest.x86_64.rpm" "https://mms.mongodb.com/download/agent/automation/mongodb-mms-automation-agent-manager-latest.x86_64.rpm"
