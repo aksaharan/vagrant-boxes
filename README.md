@@ -1,5 +1,8 @@
-Vagrant Boxes
+MongoDB vagrant-boxes
 ================
 
-Variour test Vagrant boxes to quickly setup the environment for various scenarios.
-- MongoDB: All vagrant boxes related to the MongoDB / MMS instance installation
+You can find variour vagrant boxes under the folders here that can be used for setting up various base environments for MongoDB installation. 
+The details about each directory is contained within the README file.
+
+Folders:
+- mms-automation-base: Various machines with MMS Automation Agent installed
