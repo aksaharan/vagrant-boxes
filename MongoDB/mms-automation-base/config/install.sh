@@ -27,6 +27,9 @@ sudo cp /etc/mongodb-mms/automation-agent.config /etc/mongodb-mms/automation-age
 
 sudo sed -i -e "s/@API_KEY@/$MMSAUTO_AGENT_KEY/" /etc/mongodb-mms/automation-agent.config
 sudo sed -i -e "s/@GROUP_ID@/$MMSAUTO_AGENT_GROUP_ID/" /etc/mongodb-mms/automation-agent.config
+if [ "${IS_STAGING}" == "yes" ]; then
+	sudo sed -i -e "s/mms.mongodb.com/mms-stage.mongodb.com/" /etc/mongodb-mms/automation-agent.config
+fi
 
 echo "Starting the MMS Automation Agent"
 sudo service mongodb-mms-automation-agent start
