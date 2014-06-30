@@ -17,3 +17,6 @@ MMS_AUTOMATION_AGENT_GROUP_ID = ENV["MMS_AUTOMATION_AGENT_GROUP_ID"]
 
 #### Version of mongodb-shell rpm to install
 MONGODB_SHELL_VERSION = "2.6.2-1"
+
+#### Use MMS Staging environment. This is only for internal usage.
+IS_STAGING = "no"
