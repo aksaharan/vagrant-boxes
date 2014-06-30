@@ -6,7 +6,7 @@ on it using the various settings provided in the Vagrantfile and the environment
 
 ## Quick start
 
-1. Ensure that you have [vagrant](http://www.vagrantup.com) installed
+1. Ensure that you have [vagrant](http://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads) installed
 2. Updating following entries in the config/vagrant_config.virtualbox.rb as found in MMS->Settings->Agent API Settings
 ```
 MMS_AUTOMATION_AGENT_KEY = "<YourMMSAgentKey>"
