@@ -4,6 +4,20 @@ MongoDB MMS Automation Agent vagrant-box
 This vagrant file provides creation of vagrant boxes with MMS Automation agent configured
 on it using the various settings provided in the Vagrantfile and the environment variable
 
+## Quick start
+
+1. Ensure that you have [vagrant](http://www.vagrantup.com) installed
+2. Updating following entries in the config/vagrant_config.virtualbox.rb as found in MMS->Settings->Agent API Settings
+```
+MMS_AUTOMATION_AGENT_KEY = "<YourMMSAgentKey>"
+MMS_AUTOMATION_AGENT_GROUP_ID = "<YourMMSGroupID>"
+```
+3. Set the number of vagrant boxes:
+```
+INSTANCES = 1
+```
+4. Start the show with "vagrant up"
+
 ## MMS Automation Box creation 
 Vagrant box setup behaviour is configured using the control paramaters available in the file
 config/vagrant_config.virtualbox.rb. Following are some of the values that are available 
