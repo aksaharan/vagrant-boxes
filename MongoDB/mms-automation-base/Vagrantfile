@@ -7,6 +7,7 @@ $initExports = "set -ex; export VAGRANT_LOG='/var/log/vagrant-setup.log'; \ \n"
 $initExports += "touch $VAGRANT_LOG; \ \n"
 $initExports += "echo \"Starting new Vargrant initialiazation `date`\"2>&1 | tee -a $VAGRANT_LOG; \ \n"
 $initExports += "export MONGODB_SHELL_VERSION='#{MONGODB_SHELL_VERSION}'; \ \n"
+$initExports += "export IS_STAGING='#{IS_STAGING}'; \ \n"
 $initExports += "export MMSAUTO_AGENT_KEY='#{MMS_AUTOMATION_AGENT_KEY}' MMSAUTO_AGENT_GROUP_ID='#{MMS_AUTOMATION_AGENT_GROUP_ID}'; \ \n"
 $initExports += "echo \"Agent Id [Key: $MMSAUTO_AGENT_KEY, GroupId: $MMSAUTO_AGENT_GROUP_ID]\" 2>&1 | tee -a $VAGRANT_LOG; \ \n"
 
