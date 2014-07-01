@@ -19,6 +19,10 @@ INSTANCES = 1
 4. Start the show with "vagrant up"
 5. Use /data/db path for deployments in Automation, since it already has correct permissions
 6. In MMS Automation disable agent alerts as they are annoying
+7. To ssh into a vagrant VM, from the vagrant directory use
+```
+vagrant ssh vagrant_hostname
+```
 
 ## MMS Automation Box creation 
 Vagrant box setup behaviour is configured using the control paramaters available in the file
