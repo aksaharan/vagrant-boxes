@@ -11,8 +11,11 @@ echo "This file is generated as part of the Vagrant startup"
 echo "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4" >> $HOSTS_FILE
 echo "::1         localhost localhost.localdomain localhost6 localhost6.localdomain6" >> $HOSTS_FILE
 
-fqdn=$(hostname -f)
-dn=$(hostname -f | sed 's/^\([^\.]*\).*/\1/g')
+fqdn=$(hostname)
+dn=$(hostname| sed 's/^\([^\.]*\).*/\1/g')
+
+echo "127.0.0.1	$fqdn $dn" >> $HOSTS_FILE
+echo "::1	$fqdn $dn" >> $HOSTS_FILE
 
 # Setup all the hostnames that are specific to this host first
 echo "Setting up hostnames for the configured IP address"

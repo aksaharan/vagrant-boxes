@@ -1,5 +1,5 @@
 #### Number of vagrant boxes to create
-INSTANCES = 1
+INSTANCES = 2
 
 #### Hostname specific information 
 HOSTNAME_PREFIX = "mms-automation-"
